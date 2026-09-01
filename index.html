@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interior &amp; Exterior Prompt Studio v3</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="wrap">
+  <span class="pill">Prompt Studio v3 &middot; JSON prompts</span>
+  <h1>Before &amp; After<br><em>Prompt Studio</em></h1>
+  <p class="lede">Chained JSON prompts that turn an empty space into a finished
+  Instagram carousel or reel — or walk a whole property room by room in one locked
+  design. 58 indoor spaces, 27 outdoor zones, 14 full-property packages, 49 design
+  themes, built around Indian construction reality. Set your options once — the
+  prompts write themselves.</p>
+  <div class="flow">
+    <div class="fstep"><b>Step 1</b><span>Raw Space</span><i>Slide 2 &middot; Before</i></div>
+    <div class="fstep"><b>Step 2</b><span>Design Layer</span><i>Slide 3 &middot; After</i></div>
+    <div class="fstep"><b>Step 3</b><span>Cover</span><i>Slide 1 &middot; Cover</i></div>
+    <div class="fstep"><b>Step 4</b><span>Caption &amp; Tags</span><i>Post copy</i></div>
+  </div>
+</header>
+
+<!-- ============ TOOLBAR ============ -->
+<div class="toolbar">
+  <div class="tbin">
+    <div class="tgroup g-mode">
+      <button class="mbtn on" data-mode="indoor">Indoor</button>
+      <button class="mbtn" data-mode="outdoor">Outdoor</button>
+      <button class="mbtn" data-mode="tour">Full Tour</button>
+    </div>
+    <div class="tgroup g-size">
+      <b>Size</b>
+      <select class="tsel" id="ratio">
+        <option value="post">Instagram Post &mdash; 1:1 &mdash; 1080 x 1080</option>
+        <option value="portrait">Instagram Portrait &mdash; 4:5 &mdash; 1080 x 1350</option>
+        <option value="reel">Instagram Reel / Story &mdash; 9:16 &mdash; 1080 x 1920</option>
+      </select>
+      <span class="pid" id="ratioNote">1080 x 1080 px</span>
+    </div>
+    <div class="tgroup g-fmt">
+      <b>Prompt</b>
+      <button class="sbtn fbtn on" data-fmt="json">JSON<i>structured</i></button>
+      <button class="sbtn fbtn" data-fmt="text">Text<i>readable</i></button>
+    </div>
+    <div class="tgroup g-model">
+      <b>Model</b>
+      <select class="tsel" id="model">
+        <option value="gpt">ChatGPT / GPT Image</option>
+        <option value="gemini">Gemini (Nano Banana)</option>
+        <option value="mj">Midjourney v7</option>
+        <option value="flux">Flux / Stable Diffusion</option>
+        <option value="firefly">Adobe Firefly</option>
+      </select>
+    </div>
+    <div class="tspacer">
+      <span class="pid" id="pid">IDPS-0000</span>
+      <button class="sbtn" id="newId">New id<i>fresh post</i></button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap cols">
+<!-- ============ CONTROL PANEL ============ -->
+<aside class="panel">
+  <h3>Quick starts</h3>
+  <div class="presets" id="presets"></div>
+
+  <h3>Required</h3>
+  <label class="f" for="space">Space</label>
+  <input type="text" class="filter" id="spaceSearch" placeholder="Filter 58 spaces — try clinic, kitchen, gym">
+  <select id="space"></select>
+  <div class="hint" id="spaceHint">What you are designing.</div>
+
+  <label class="f" for="theme">Design theme</label>
+  <select id="theme"></select>
+  <div class="hint" id="themeHint">Leave on AI decides for the best fit.</div>
+
+  <label class="f" for="handle">Instagram handle</label>
+  <input type="text" id="handle" placeholder="@yourpagename">
+  <div class="hint">Printed on every cover. Leave blank to omit.</div>
+
+  <button class="advtoggle" id="advToggle" type="button" aria-expanded="true" aria-controls="advanced">
+    <span>Optional details <i>9 controls &middot; off = AI decides</i></span>
+  </button>
+  <div id="advanced">
+  <h3 class="advh">Optional — off = AI decides</h3>
+
+  <label class="chk"><input type="checkbox" data-opt="scale">
+    <span>Set size &amp; scale</span></label>
+  <div class="opt" id="opt-scale" hidden>
+    <input type="text" id="scale" placeholder="e.g. 16x20 ft room">
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="light">
+    <span>Set time of day &amp; light</span></label>
+  <div class="opt" id="opt-light" hidden>
+    <div class="radio" id="lightR"></div>
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="condition">
+    <span>Set condition of the "before"</span></label>
+  <div class="opt" id="opt-condition" hidden>
+    <div class="radio" id="condR"></div>
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="accent">
+    <span>Force an accent colour</span></label>
+  <div class="opt" id="opt-accent" hidden>
+    <div class="swgrid" id="swgrid"></div>
+    <div class="swname" id="swname">Pick a swatch or type your own</div>
+    <input type="text" id="accent" placeholder="e.g. terracotta, or click a swatch">
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="must">
+    <span>Must-include elements</span></label>
+  <div class="opt" id="opt-must" hidden>
+    <textarea id="must" placeholder="e.g. study desks and a green chalkboard"></textarea>
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="budget">
+    <span>Set budget tier</span></label>
+  <div class="opt" id="opt-budget" hidden>
+    <div class="radio" id="budgetR"></div>
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="hook">
+    <span>Write my own cover hook</span></label>
+  <div class="opt" id="opt-hook" hidden>
+    <input type="text" id="hook" placeholder="max 7 words">
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="market">
+    <span>Set city / market for hashtags</span></label>
+  <div class="opt" id="opt-market" hidden>
+    <input type="text" id="market" placeholder="e.g. Pune, Maharashtra">
+  </div>
+
+  <label class="chk"><input type="checkbox" data-opt="cta">
+    <span>Set the call to action</span></label>
+  <div class="opt" id="opt-cta" hidden>
+    <div class="radio" id="ctaR"></div>
+  </div>
+
+  <h3>Output</h3>
+  <label class="chk"><input type="checkbox" data-flag="notes" checked>
+    <span>Ask AI for geometry-lock notes <i style="color:var(--mute);font-style:normal">(recommended)</i></span></label>
+  <label class="chk"><input type="checkbox" data-flag="hindi">
+    <span>Caption in Hinglish</span></label>
+  <label class="chk"><input type="checkbox" data-flag="strict" checked>
+    <span>Strict no-text / no-people rules</span></label>
+  <div class="hint" id="modelNote"></div>
+  </div><!-- /#advanced -->
+
+  <div class="rowbtns">
+    <button class="reset" id="surprise">Surprise me</button>
+    <button class="reset" id="resetBtn">Reset all options</button>
+  </div>
+</aside>
+
+<!-- ============ PROMPTS ============ -->
+<main>
+  <div class="actbar">
+    <button class="btn" id="copyAll">Copy all prompts</button>
+    <button class="btn gh" id="dlAll">Download the set</button>
+    <button class="btn sm" id="share">Copy share link</button>
+  </div>
+  <div id="prompts"></div>
+</main>
+</div>
+
+<div class="wrap">
+<section class="ref">
+  <h2>Theme library</h2>
+  <p class="sub">Pick one in the panel, or leave it on <b>AI decides</b> and the best-fit
+  theme is chosen for your space automatically. Each card shows the palette the prompt
+  will push the model towards.</p>
+  <div class="tfilter">
+    <input type="text" id="themeSearch" placeholder="Search themes — try indian, coastal, dark, brass">
+    <span class="hint" id="themeCount"></span>
+  </div>
+  <div class="tgrid" id="themeGrid"></div>
+</section>
+
+<section class="ref">
+  <h2>How to run it</h2>
+  <p class="sub">One post = one fresh chat. Never mix two posts in one chat. The prompts
+  are JSON specifications — paste them whole, braces included.</p>
+  <details open><summary>1 &middot; Generate the raw space</summary><div class="body">
+    Set your options, pick the image size in the toolbar, copy Prompt 1 and paste it into
+    a new chat. Check the result: space genuinely empty, camera level, correct aspect
+    ratio, no text. Save it as <code>01-before.png</code>. If the model replies by
+    describing the JSON instead of generating, send: <code>Generate the image now.</code>
+  </div></details>
+  <details><summary>2 &middot; Add the design layer</summary><div class="body">
+    <b>Attach 01-before.png</b> to your next message, then paste Prompt 2. The
+    <code>geometry_lock</code> block is what keeps the walls, windows and camera identical
+    — do not delete it. Verify nothing architectural moved, then save as
+    <code>02-after.png</code>.
+  </div></details>
+  <details><summary>3 &middot; Build the cover</summary><div class="body">
+    Attach both images, paste Prompt 3. The template carries exact pixel coordinates for
+    the chosen size, so every post in your feed lines up. For reels the split is
+    horizontal — before on top, after below — and the top 250 px and bottom 420 px are
+    kept clear of Instagram's own UI. Check the headline spelling, this is the most common
+    failure. Save as <code>00-cover.png</code>.
+  </div></details>
+  <details><summary>4 &middot; Get the caption and hashtags</summary><div class="body">
+    Paste Prompt 4 in the same chat so it can read the real design. On reel size you also
+    get a 15–20 second voiceover script with timestamped on-screen text beats.
+  </div></details>
+  <details><summary>5 &middot; Publish</summary><div class="body">
+    Carousel order: <code>00-cover</code> &rarr; <code>01-before</code> &rarr;
+    <code>02-after</code>. For a reel, animate cover &rarr; before &rarr; after with a
+    1 second hold each and use the script as the voiceover. Paste the caption, publish,
+    then add the first comment immediately.
+  </div></details>
+</section>
+
+<section class="ref">
+  <h2>Quality control</h2>
+  <p class="sub">Run this before you post. Anything unticked, regenerate.</p>
+  <div class="checks">
+    <div><b>Cover</b><ul>
+      <li>Split lands on the stated pixels</li>
+      <li>Grid visible but subtle</li>
+      <li>BEFORE / AFTER badges in place</li>
+      <li>Headline spelled correctly</li>
+      <li>Readable at thumbnail size</li>
+      <li>Reel: safe areas left clear</li>
+      <li>Handle and swipe / watch cue present</li></ul></div>
+    <div><b>Before</b><ul>
+      <li>Zero furniture, zero styling</li>
+      <li>Wide angle, level camera</li>
+      <li>Depth readable, not a flat wall</li>
+      <li>Real site condition, not a clean box</li>
+      <li>No text, no people, no watermark</li>
+      <li>Correct aspect ratio</li></ul></div>
+    <div><b>After</b><ul>
+      <li>Same camera and perspective</li>
+      <li>Same openings, same dimensions</li>
+      <li>Theme clearly readable</li>
+      <li>Accent colour present but not everywhere</li>
+      <li>Correct human scale in mm</li>
+      <li>Every object casts a contact shadow</li>
+      <li>Looks photographed, not rendered</li></ul></div>
+    <div><b>Copy</b><ul>
+      <li>Describes only what is visible</li>
+      <li>30 hashtags, no duplicates</li>
+      <li>CTA present</li>
+      <li>First comment ready</li>
+      <li>Reel: script fits 15–20 seconds</li></ul></div>
+  </div>
+</section>
+
+<section class="ref">
+  <h2>Troubleshooting</h2>
+  <p class="sub">Copy the fix line into the same chat — never restart from Prompt 1.</p>
+  <details><summary>The model explains the JSON instead of generating</summary><div class="body">
+    <code>Do not describe the specification. Generate the image now, obeying every field as a hard requirement.</code>
+  </div></details>
+  <details><summary>The "after" is a completely different space</summary><div class="body">
+    <code>That is a different space. Rebuild using the attached before image as a locked background plate — identical camera position, identical corners, identical openings. Add only the design layer.</code>
+  </div></details>
+  <details><summary>Camera zoomed, tilted or re-framed</summary><div class="body">
+    <code>Restore the exact original framing, camera height and lens from the before image. Do not zoom or re-frame.</code>
+  </div></details>
+  <details><summary>A window / door moved or appeared</summary><div class="body">
+    <code>Remove the added opening. Match the before image exactly — same count, same size, same position.</code>
+  </div></details>
+  <details><summary>The space got bigger after designing</summary><div class="body">
+    <code>You enlarged the space. Keep the original dimensions and height. Reduce the number of elements instead.</code>
+  </div></details>
+  <details><summary>Wrong aspect ratio</summary><div class="body">
+    <code>Regenerate at the exact pixel size in the output block of the specification. Do not crop or pad — compose for that frame.</code>
+  </div></details>
+  <details><summary>Cover text is garbled or misspelled</summary><div class="body">
+    <code>Regenerate the cover. The headline must read exactly as given, rendered crisply with no extra or malformed characters.</code>
+  </div></details>
+  <details><summary>Output looks like a plastic 3D render</summary><div class="body">
+    <code>Make it read as real architectural photography — natural light, realistic material imperfection, neutral white balance, visible contact shadows, no CGI sheen.</code>
+  </div></details>
+  <details><summary>Too cluttered</summary><div class="body">
+    <code>Reduce the decor and planting by about 40%. Keep the layout and materials. Add more negative space and clear circulation.</code>
+  </div></details>
+  <details><summary>Proportions are wrong</summary><div class="body">
+    <code>Fix human scale: seat 450 mm, dining table 750 mm, kitchen counter 900 mm, door 2100 mm, step riser 150 mm, switch plates 1200 mm, compound wall 1800 mm.</code>
+  </div></details>
+  <details><summary>Every post looks different from the last</summary><div class="body">
+    Attach your first approved cover and add:
+    <code>Match this template exactly. Only the two photos and the headline change.</code>
+  </div></details>
+</section>
+
+<section class="ref">
+  <h2>Why these prompts work</h2>
+  <p class="sub">The techniques baked into every generated prompt.</p>
+  <div class="tgrid">
+    <div class="tcard"><b>JSON specification</b><p>Fields are unambiguous. A model cannot
+      skim past <code>"aspect_ratio":"9:16"</code> the way it skims past a clause buried in
+      a paragraph, and nested blocks keep camera, materials and lighting from bleeding into
+      each other.</p></div>
+    <div class="tcard"><b>Reference locking</b><p>Prompt 2 declares the previous image a
+      locked background plate. This reframes the job from "generate a space" to "edit a
+      layer" — the single biggest driver of before/after consistency.</p></div>
+    <div class="tcard"><b>Numbered invariants</b><p>The geometry lock is an enumerated
+      list with an explicit allowed / forbidden split, not prose. Discrete numbered
+      constraints are obeyed more reliably.</p></div>
+    <div class="tcard"><b>Self-written state notes</b><p>The AI records its own geometry
+      and design decisions as text. Written notes survive across turns far better than
+      visual memory alone.</p></div>
+    <div class="tcard"><b>Per-space element lists</b><p>Every one of the 85 spaces carries
+      its own typical Indian dimension and a list of the elements it genuinely needs, so a
+      clinic gets a hand-wash basin and a pooja room gets a jaali back panel without you
+      typing either.</p></div>
+    <div class="tcard"><b>PBR material language</b><p>Roughness, specular response, grain
+      direction and veining continuity are named the way a render engine names them, which
+      is the vocabulary these models were trained on.</p></div>
+    <div class="tcard"><b>Millimetre ergonomics</b><p>Seat 450, counter 900, door 2100,
+      switch plate 1200, walkway 900. Real numbers, not "comfortable proportions".</p></div>
+    <div class="tcard"><b>Indian construction reality</b><p>2100 mm door heights, 900 mm
+      sills, chajja projections, 100 mm skirting, Kota and IPS floors, vastu orientation
+      for pooja rooms — the details that separate a plausible Indian project from a
+      Pinterest render.</p></div>
+    <div class="tcard"><b>Aspect-aware composition</b><p>The lens, the framing and the
+      cover geometry all change with the selected size. Reels get a taller lens, a
+      horizontal split and Instagram's UI safe areas.</p></div>
+    <div class="tcard"><b>Negative prompting</b><p>Explicit exclusion lists remove the
+      usual artefacts. On Flux and SD the list is also copyable on its own for the tool's
+      dedicated negative field.</p></div>
+    <div class="tcard"><b>Self-check before output</b><p>The prompt asks the model to
+      verify its own work against the constraints before it renders, which catches drift
+      that a plain instruction misses.</p></div>
+    <div class="tcard"><b>Graceful defaults</b><p>Every optional control resolves to an
+      <code>AI_DECIDES</code> instruction telling the model to choose the best-matching
+      value, so a minimal setup still produces a complete result.</p></div>
+  </div>
+</section>
+</div>
+
+<footer>Before &amp; After Prompt Studio v3.0 &middot; Indoor + Outdoor &middot;
+JSON prompts &middot; Post, Portrait and Reel</footer>
+
+<div class="toast" id="toast">Copied</div>
+<script src="data.js"></script>
+<script src="prompts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
