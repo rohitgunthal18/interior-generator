@@ -330,7 +330,7 @@ function wire(){
     S.fmt=b.dataset.fmt; syncUI(); refresh();
   }));
   $("model").addEventListener("change",()=>{ S.model=$("model").value; refresh(); });
-  $("space").addEventListener("change",()=>{ S.space=$("space").value; refresh(); });
+  $("space").addEventListener("change",()=>{ S.space=$("space").value; S.seed=newSeed(); S.pid=newPid(); refresh(); });
   $("theme").addEventListener("change",()=>{ S.theme=$("theme").value; refresh(); });
   $("handle").addEventListener("input",()=>{ S.handle=$("handle").value; refresh(); });
   $("spaceSearch").addEventListener("input",()=>{ fillSpaces(); refresh(); });

@@ -68,21 +68,36 @@ function seedNum(){
 }
 /* the one line that guides a different raw shell every time */
 function varyLine(){
-  const P = OUT() ? VARY_OUT : VARY_IN;
-  const r = prng(seedNum() + (OUT() ? 7777 : 0));
+  /* ---- typology router for outdoor spaces ---- */
+  let P;
+  if(OUT()){
+    const spName = (S.space||"").toLowerCase();
+    const sacred = /temple|mandir|mosque|masjid|church|gurudwara|dargah|shrine|chapel|gopuram/i.test(spName);
+    const commercial = /office|showroom|factory|warehouse|school|college|hospital|clinic|institute|mall|hotel|industrial/i.test(spName);
+    P = sacred ? VARY_SACRED : commercial ? VARY_COMMERCIAL : VARY_OUT_RESIDENTIAL;
+  } else {
+    P = VARY_IN;
+  }
+
+  /* use a different seed offset per category so picks don't cluster */
+  const offset = OUT() ? 7777 : 1111;
+  const r = prng(seedNum() + offset);
   const p = arr => arr[Math.floor(r() * arr.length) % arr.length];
   const plan = p(P.plan), open = p(P.openings), acc = p(P.door),
         quirk = p(P.quirk), view = p(P.view);
   const sized = S.opts.scale && S.vals.scale && String(S.vals.scale).trim();
   const shape = sized ? "keep the size I gave" : plan;
+
+  /* Put the plan description FIRST so it's the lead instruction */
   return (OUT()
-    ? "Build a shell that is specific to THIS post and no other: " + shape + "; " + open +
-      "; " + acc + "; " + quirk + ". Shoot it " + view +
-      ". This overrides any default elevation you would otherwise reach for."
-    : "Build a shell that is specific to THIS post and no other: " + shape + "; " + open +
-      "; " + acc + "; " + quirk + ". Shoot it " + view +
-      ". This overrides any default room layout you would otherwise reach for.");
+    ? "THIS POST ONLY — do not reuse a default massing: " + shape + ". " + open +
+      ". " + acc + ". " + quirk + ". Viewpoint: " + view +
+      ". If this is a sacred or monumental building, honour its actual architectural typology — shikhara, gopuram, mandapa, etc. — not a generic house box."
+    : "THIS POST ONLY — do not reuse a default room box: " + shape + ". " + open +
+      ". " + acc + ". " + quirk + ". Viewpoint: " + view +
+      ". Make the spatial geometry unmistakably specific — a different layout from every other post.");
 }
+
 
 /* ---------- shared blocks ---------- */
 function strictNeg(){
@@ -165,17 +180,22 @@ function D1(){
   return {
     task:"text_to_image",
     post_id:S.pid, use:"BEFORE plate — slide 2 of 3",
-    goal:"One raw, empty, un-designed " + (o?"Indian property exterior":"Indian interior") +
-      ". It becomes the locked reference for step 2, so keep it level, deep and readable.",
-    output:outputBlock("unedited documentary site photograph, not a render, not a graphic"),
-    subject:{
-      space:sp.n, group:sp.g, region:"India",
-      state:"completely empty and undesigned — pre-design site condition",
-      size:v("scale","use the realistic typical size for this space type: " + sp.s),
-      condition:v("condition","the most typical real site condition for this space")
-    },
+    space_type:sp.n + " (" + sp.g + ")",
+    critical_instruction:"You are generating a RAW, UNDESIGNED '" + sp.n + "' — a real site photograph at construction stage. " +
+      "MATCH the actual spatial typology of a " + sp.n + ": its characteristic dimensions, proportions, ceiling height, " +
+      "structural system and opening layout must read as this specific space, not a generic rectangle. " +
+      "Use the shell_variation field below as the governing geometry for THIS unique post.",
     shell_variation:varyLine(),
     variation_seed:S.pid + "-" + (S.seed || 0),
+    goal:"One raw, empty, un-designed " + (o?"Indian property exterior":"Indian interior") +
+      ". It becomes the locked reference for step 2 — keep it level, deep, readable.",
+    output:outputBlock("unedited documentary site photograph, shot on full-frame DSLR or mirrorless, natural lens character — NOT a render, NOT CGI, NOT a graphic"),
+    subject:{
+      space:sp.n, group:sp.g, region:"India",
+      state:"completely empty and undesigned — pre-design site condition, construction stage",
+      size:v("scale","realistic typical size for a " + sp.n + ": " + sp.s),
+      condition:v("condition","the most typical real site condition for this space")
+    },
     raw_shell:o
       ? ["unfinished grey blockwork or rough cement plaster, unpainted, tonal patchiness",
          "rough uneven ground — no paving, no planting, no compound finish",
@@ -184,11 +204,11 @@ function D1(){
          "services left raw: meter box, drain points, downpipe openings, conduit stubs",
          "site reality: cement stains, debris, tyre marks, chalk markings, one stray scaffolding pipe"]
       : ["bare grey cement plaster, unpainted, visible trowel ridges and patch repairs",
-         "exposed RCC ceiling soffit with shuttering ply lines",
+         "exposed RCC ceiling soffit with shuttering ply lines, a single fan hook stub",
          "raw screed or IPS floor with cement dust and tile-cutting debris",
          "openings unfinished: frames in place, glass taped or missing, no shutters, no curtain track",
-         "electrical provisions raw: conduit stubs, switchboard back-boxes, one fan hook",
-         "site reality: dust, float marks, paint splashes, a chalk dimension scribble"],
+         "electrical provisions raw: conduit stubs, switchboard back-boxes marked on wall",
+         "site reality: cement dust, float marks, paint splashes, a chalk dimension scribble"],
     indian_standards_mm:o
       ? {door_height:2100, window_sill:900, chajja_projection:600, floor_to_floor:3050,
          parapet:1050, plinth:450, compound_wall:1800}
@@ -196,22 +216,24 @@ function D1(){
          slab_height:3050, skirting_mark:100, switchboard:1200, socket:300},
     camera:{
       lens:r.cam[o?"out":"in"], height_cm:o?160:150,
-      station_point:"as directed in shell_variation — vary it, do not default to the centre",
-      level:"perfectly level, verticals dead straight, no tilt, no keystone, no fisheye, no barrel",
+      station_point:"as directed in shell_variation — do not default to the centre of the near wall",
+      level:"perfectly level, verticals dead straight, no tilt, no keystone, no fisheye, no barrel distortion",
+      optics:"full-frame DSLR feel — slight natural vignette at corners, real lens micro-CA, no software over-sharpening, no AI composite flatness",
       exposure:o?"f/9, 1/125, ISO 100, hyperfocal":"f/8, 1/60, ISO 200, hyperfocal",
-      frame:o?"the full property height with sky above the roofline, about 20 percent foreground ground, boundary line visible for scale"
-             :"two walls meeting at a corner, the ceiling line at the top, about 15 percent foreground floor — it must read as a volume, never as a flat wall"
+      frame:o?"the full property height with sky above the roofline, about 20 percent foreground ground, boundary visible for scale"
+             :"two walls meeting at a corner, ceiling line at the top, about 15 percent foreground floor — read as a volume, never a flat wall"
     },
     lighting:{
       time_of_day:v("light","whatever reads most natural and documentary here"),
       source:o?"daylight only — no facade or landscape lighting installed yet"
              :"daylight through the existing openings only — no fixtures installed yet",
-      quality:"even and honest, open shadows, 5000-5600K neutral, one sun direction that every shadow in frame agrees with"
+      quality:"even and honest, open shadows, 5000-5600K neutral, one sun direction that every shadow in frame agrees with, no HDR"
     },
-    realism:["true vanishing points, no warped, melted or duplicated geometry, no impossible corner joins",
-      "brick, block and tile coursing consistent in scale across the depth of the frame",
-      "a quiet uncluttered document, not a hero shot, still readable at thumbnail size",
-      "no grading, no HDR, no vignette — very light natural sensor grain only"],
+    realism:["true vanishing points — no warped, melted or duplicated geometry, no impossible corner joins",
+      "material scale consistent — brick, block and tile coursing correct across depth of frame",
+      "quiet uncluttered document, not a hero shot, readable at thumbnail size",
+      "no grading, no HDR, no vignette — very light natural sensor grain only",
+      "contact shadows at base of every wall, true penumbra, no floating elements"],
     negative_prompt:negJoin([
       o?"no landscaping":"no furniture", o?"no paving":"no rugs", o?"no planting":"no curtains",
       o?"no gate or compound finish":"no decor or artwork",
@@ -219,9 +241,9 @@ function D1(){
       o?"no paint or cladding scheme":"no plants",
       "no staged styling of any kind", ...strictNeg(),
       "no fisheye","no HDR halo","no heavy colour grading","no oversaturation",
-      "no CGI or 3D-render sheen","no plastic-looking materials",
+      "no CGI or 3D-render sheen","no plastic-looking or artificially smooth materials",
       "no invented or duplicated openings","no floating objects","no mirrored geometry",
-      "no borders","no split screen","no low-resolution artefacts"
+      "no borders","no split screen","no low-resolution artefacts","no AI composite flatness"
     ]),
     after_generation_output:S.flags.notes ? {
       block_title:"GEOMETRY_LOCK",
@@ -237,10 +259,12 @@ function D1(){
   };
 }
 function P1(){
-  return wrap("Generate ONE image from this JSON specification. Every field is a hard requirement. "
-    + "shell_variation defines the architecture — follow it exactly and do not substitute a generic layout. "
-    + "Do not describe the JSON back to me, produce the image.", D1());
+  return wrap("Generate ONE image from this JSON specification. Every field is a hard requirement. " +
+    "critical_instruction and shell_variation define the architecture — follow them exactly and do not substitute a generic layout or default room shape. " +
+    "The result must look like a real documentary site photograph, not a 3D render or CGI composite. " +
+    "Do not describe the JSON back to me, produce the image.", D1());
 }
+
 
 /* =====================================================================
    PROMPT 2 — the designed "after", locked to the before
@@ -344,10 +368,11 @@ function D2(){
     layers_to_add: o ? layersOut() : layersIn(),
     ergonomics_mm:ergonomics(),
     render_quality:{
-      medium:"magazine architectural photography, not a 3D render",
-      materials:"physically based roughness and specular per material, anisotropic brushed metal, grain running with the piece, stone veining continuous across joints, visible fabric weave, glass with real refraction",
-      light:"global illumination with colour bleed, soft shadows, inverse-square falloff, a contact shadow under every object so nothing floats",
-      grade:"neutral white balance, restrained saturation, straight verticals, no CGI sheen, no clay render"
+      medium:"magazine architectural photography — looks like a human photographer entered the space with a DSLR or mirrorless camera, not a 3D render or CGI composite",
+      camera_optics:"shot on full-frame sensor, 24-35mm prime or 16-35mm zoom at f/5.6 to f/8, slight natural lens vignette at corners, real chromatic aberration micro-fringe at high-contrast edges, no software sharpening halo, no AI composite flatness",
+      materials:"physically based roughness and specular per material — anisotropic brushed metal with the grain running with the piece, stone veining continuous across grout joints, visible fabric weave at 1:1 zoom, glass with real refraction not a flat reflective plane, painted wall shows slight eggshell sheen not matte-clay smoothness",
+      light:"global illumination with colour bleed onto adjacent surfaces, soft penumbra shadows with correct inverse-square falloff, a contact shadow at the base of every piece of furniture so nothing floats, visible dust motes in a sun beam if windows are in shot",
+      grade:"neutral to warm white balance 3200-4500K, restrained saturation, straight verticals, zero CGI sheen, no clay-render look, no Unreal Engine smoothness, no oversaturated brand-style grade"
     },
     negative_prompt:negJoin([
       "do not change the camera angle","do not zoom or re-frame","do not change the aspect ratio",
@@ -479,41 +504,32 @@ function D4(){
       subject:sp.n, group:sp.g,
       theme:TH() ? TH().n : "the theme you selected above",
       accent_colour:accentVal(),
-      audience:(o?"Indian homeowners, plot owners and builders":"Indian homeowners and interior clients") + ", plus designers and students",
-      market:mkt || "pan-India, no city specified",
-      cta_goal:v("cta","pick the call to action most likely to convert here"),
+      audience:(o?"Indian homeowners, plot owners and builders":"Indian homeowners and interior clients") + ", plus designers",
+      market:mkt || "pan-India",
       language:S.flags.hindi
-        ? "natural Hinglish — English structure with the common Hindi words Indian design pages actually use. No formal Hindi, no Devanagari."
+        ? "natural Hinglish — English structure with common Hindi design words. No formal Hindi, no Devanagari."
         : "clear conversational English, short sentences, no jargon"
     },
-    voice:{tone:"expert but friendly, like a designer explaining a decision to a client",
-      banned:"filler such as transform your space today, AI words such as elevate and delve, stacked exclamations, emoji spam, fake urgency, unverifiable price claims"},
+    voice:{tone:"expert but friendly, like a designer casually explaining a decision",
+      banned:"filler phrases like 'transform your space', AI-words like 'elevate' or 'delve', emoji spam, fake urgency"},
     deliverables:[
-      {n:1, name:"HOOK_LINE", spec:"first line of the caption, under 60 characters, curiosity or transformation angle, no hashtags, no emoji"},
-      {n:2, name:"FULL_CAPTION", spec:"120 to 180 words, line breaks between blocks, no hashtags, and the first 125 characters must work as the truncated preview",
-        structure:["the hook line",
-          "one line: what it was, what it became",
-          "3 to 5 bullets, each with one emoji, each naming a REAL decision visible in the image (" + (o?"material, paving, planting, lighting, facade":"material, colour, lighting, layout, storage") + ") and the benefit it gives",
-          "one practical takeaway the reader can use at home",
-          "the call to action, then a save-this closing line"]},
-      {n:3, name:"SHORT_ALT_CAPTION", spec:"a 2-line version under 200 characters for reels and stories"},
-      {n:4, name:"SEO_DESCRIPTION", spec:"40 to 60 words of plain prose naming the " + (o?"property type and zone":"room type") + ", theme, materials and palette, for search and screen readers"},
-      {n:5, name:"HASHTAGS", spec:"exactly 30, lowercase, one copy-paste line, no duplicates, no banned tags, all relevant to this image",
-        mix:"5 broad high-volume, 10 medium niche tied to the theme and " + (o?"property type":"room type")
-          + ", 10 low-competition tied to materials, palette and exact style, "
-          + (mkt ? "3 location tags for " + mkt : "3 more low-competition niche tags and no location tags")
-          + ", 2 community tags such as before and after"},
-      {n:6, name:"FIRST_COMMENT", spec:"ready to post: one question that invites replies plus a 5-tag mini set"},
-      isReel ? {n:7, name:"REEL_SCRIPT", spec:"a 15 to 20 s voiceover script — 0-2 s the hook, 2-6 s the before condition, 6-14 s three design decisions one line each, 14-18 s the payoff and the CTA; plus on-screen text beats with timestamps at max 5 words each, and 2 audio styles described by feel"} : undefined,
-      {n:isReel?8:7, name:"POSTING_NOTES", spec:"the 2 best IST posting slots for an Indian audience, the slide upload order, and 3 alternative hooks to A/B test"}
+      {n:1, name:"TITLE",
+        spec:"A single bold headline for this post. Under 50 characters. Reference the actual space and theme. No hashtags, no emoji. Example style: 'Raw kitchen to minimal industrial loft' or 'South Indian temple entrance — stone-and-teak edition'. Make it specific to THIS design."},
+      {n:2, name:"SHORT_DESCRIPTION",
+        spec:"2 to 4 lines of natural conversational copy. Mention the space (" + sp.n + "), the theme, one material and one design decision actually visible in the image. Friendly and specific — do not be generic. No hashtags. No more than 4 lines."},
+      {n:3, name:"HASHTAGS",
+        spec:"Exactly 5 hashtags. Lowercase. One copy-paste line. All must be directly relevant to this exact image: the " + sp.n + ", the " + (TH() ? TH().n : "design theme") + " style, and the visible materials or palette." +
+          (mkt ? " Include one location hashtag for " + mkt + "." : "") +
+          " Do not pad with generic tags like #interiordesign or #home — every tag must be specific."}
     ],
     output_format:"Return each deliverable in its own copy-paste-ready code block, labelled with its name. No commentary between blocks."
   };
 }
 function P4(){
-  return wrap("Write the Instagram copy for the post we just built, following this JSON specification exactly. "
-    + "Return only the deliverables, each in its own code block.", D4());
+  return wrap("Write the Instagram copy for the post we just built, following this JSON specification exactly. " +
+    "Return only the 3 deliverables — TITLE, SHORT_DESCRIPTION and HASHTAGS — each in its own code block. Nothing else.", D4());
 }
+
 
 
 /* =====================================================================
@@ -568,15 +584,18 @@ function camOf(i){
   };
 }
 function tourReal(){
-  return ["a photograph, not a render: real optics, real falloff, contact shadows and ambient occlusion under everything",
-    "physically based materials — correct roughness per surface, grain running with the piece, continuous stone veining, visible fabric weave",
+  return [
+    "a photograph, not a render — a human photographer walked into this space with a full-frame DSLR or mirrorless camera on a tripod and shot it; real optics, real falloff, no AI composite flatness",
+    "camera optics: 18-35mm range, f/5.6 to f/8, slight natural lens vignette at corners, micro chromatic aberration fringe at high-contrast edges, no software sharpening halo",
+    "physically based materials — correct roughness per surface, grain running with the piece, continuous stone veining across grout joints, visible fabric weave at 1:1 zoom, glass with real refraction not a flat mirror plane",
+    "light: global illumination with colour bleed onto adjacent surfaces, soft penumbra shadows with inverse-square falloff, a contact shadow under every piece of furniture so nothing floats",
     "buildable by an Indian contractor: real joinery, real bracket logic, no floating cantilevers, no invented hardware",
-    "clean unstaged realism, no CGI sheen, no clay render, straight verticals, restrained grade, detail held into the corners"];
+    "clean unstaged realism: straight verticals, neutral to warm grade (3200-4500K), no CGI sheen, no Unreal Engine smoothness, no clay render, no oversaturated colour grade, detail held into the corners"
+  ];
 }
-/* image 1 spells the treatment out; the rest of the set only has to match it */
 function tourRealShort(){
-  return "identical treatment to image 1: real optics and falloff, contact shadows under everything, "
-    + "physically based materials, buildable joinery, straight verticals, no CGI sheen, no clay render";
+  return "identical treatment to image 1: real DSLR optics and falloff, contact shadows under everything, " +
+    "physically based materials, buildable joinery, straight verticals, no CGI sheen, no clay render, no AI flatness";
 }
 function tourNeg(extra){
   return negJoin([extra,
@@ -776,40 +795,30 @@ function DTP(){
       theme:TH() ? TH().n : "the theme you locked in image 1",
       accent_colour:accentVal(),
       budget_tier:budgetVal(),
-      audience:"Indian homeowners planning a full interior, plus designers and students",
-      market:mkt || "pan-India, no city specified",
-      cta_goal:v("cta", "pick the call to action most likely to convert here"),
+      audience:"Indian homeowners planning a full interior, plus designers",
+      market:mkt || "pan-India",
       language:S.flags.hindi
-        ? "natural Hinglish — English structure with the common Hindi words Indian design pages actually use. No formal Hindi, no Devanagari."
+        ? "natural Hinglish — English structure with common Hindi design words. No formal Hindi, no Devanagari."
         : "clear conversational English, short sentences, no jargon"
     },
     voice:{tone:"expert but friendly, like a designer walking a client through a finished home",
-      banned:"filler such as transform your space today, AI words such as elevate and delve, stacked exclamations, emoji spam, fake urgency, unverifiable price claims"},
+      banned:"filler phrases like 'transform your space', AI-words like 'elevate' or 'delve', emoji spam, fake urgency"},
     deliverables:[
-      {n:1, name:"HOOK_LINE", spec:"first line of the caption, under 60 characters, angled on seeing a whole " + t.n + " done in one design language. No hashtags, no emoji."},
-      {n:2, name:"FULL_CAPTION", spec:"150 to 200 words, line breaks between blocks, no hashtags, and the first 125 characters must work as the truncated preview",
-        structure:["the hook line",
-          "one line naming the property and the single design idea that runs through every room",
-          "one short line per room in order (" + rooms.map(x => x.n).join(", ") + "), each naming a REAL decision visible in that image — material, colour, lighting, layout or storage — and what it does for the person living there",
-          "one line on what holds the rooms together: the repeated floor, finish, hardware and accent",
-          "one practical takeaway a reader can copy in their own home",
-          "the call to action, then a save-this closing line"]},
-      {n:3, name:"SLIDE_CAPTIONS", spec:"one line per image in order, each under 12 words, usable as on-image text or slide notes. Label each with its room name. " + rooms.length + " lines, no hashtags."},
-      {n:4, name:"SHORT_ALT_CAPTION", spec:"a 2-line version under 200 characters for reels and stories"},
-      {n:5, name:"SEO_DESCRIPTION", spec:"40 to 60 words of plain prose naming the property type, the rooms covered, the theme, materials and palette, for search and screen readers"},
-      {n:6, name:"HASHTAGS", spec:"exactly 30, lowercase, one copy-paste line, no duplicates, no banned tags, all relevant to these images",
-        mix:"5 broad high-volume, 10 medium niche tied to the theme and property type, 10 low-competition tied to materials, palette and exact style, "
-          + (mkt ? "3 location tags for " + mkt : "3 more low-competition niche tags and no location tags")
-          + ", 2 community tags such as full home interior and home tour"},
-      {n:7, name:"FIRST_COMMENT", spec:"ready to post: one question that invites replies plus a 5-tag mini set"},
-      isReel ? {n:8, name:"REEL_SCRIPT", spec:"a 20 to 30 s voiceover script — 0-3 s the hook, 3-8 s the property and the one design idea, 8-24 s one line per room in order, last 4 s the payoff and the CTA; plus on-screen text beats with timestamps at max 5 words each, and 2 audio styles described by feel"} : undefined,
-      {n:isReel ? 9 : 8, name:"POSTING_NOTES", spec:"the 2 best IST posting slots for an Indian audience, the slide order (collage cover first, then the rooms), and 3 alternative hooks to A/B test"}
+      {n:1, name:"TITLE",
+        spec:"A single bold headline for this full-tour post. Under 50 characters. Reference the property type (" + t.n + ") and the design theme. No hashtags, no emoji. Be specific to THIS design — not generic."},
+      {n:2, name:"SHORT_DESCRIPTION",
+        spec:"2 to 4 lines of natural conversational copy. Mention the property type, the one design language that runs through every room, one standout room detail, and why a homeowner would want this. No hashtags. No more than 4 lines."},
+      {n:3, name:"HASHTAGS",
+        spec:"Exactly 5 hashtags. Lowercase. One copy-paste line. All must be directly relevant: the property type (" + t.n + "), the " + (TH() ? TH().n : "design theme") + " style, and the visible materials or palette." +
+          (mkt ? " Include one location hashtag for " + mkt + "." : "") +
+          " Do not pad with generic tags — every tag must earn its place."}
     ],
     output_format:"Return each deliverable in its own copy-paste-ready code block, labelled with its name. No commentary between blocks."
   };
 }
 function PTP(){
-  return wrap("Write the Instagram copy for this property tour, following this JSON specification exactly. Text only — do not generate an image.", DTP());
+  return wrap("Write the Instagram copy for this property tour, following this JSON specification exactly. " +
+    "Return only the 3 deliverables — TITLE, SHORT_DESCRIPTION and HASHTAGS — each in its own code block. Text only — do not generate an image.", DTP());
 }
 
 /* ---------------- the tour card set: n rooms + collage + copy ---------------- */

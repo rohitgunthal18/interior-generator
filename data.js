@@ -335,7 +335,21 @@ const TOURS = [
    {n:"Private dining booth", m:"one 2100x1000 table at 750 for eight, high-back banquette on both sides, 2100 partition screens, one pendant cluster, wall art panel, soft dimmed light", lens:"wide", hero:"show the booth with the partition screens framing it", link:"the same upholstery, timber or metal finish and light temperature as the main hall"},
    {n:"Bar counter", m:"3600 counter at 1050 with six stools, back bar bottle display with internal light, 900 working counter behind, sink and chiller, overhead glass rack", lens:"wide", hero:"show the full counter with the lit back bar behind it", link:"the same counter finish, metal and accent colour as the dining hall"},
    {n:"Entrance and waiting lounge", m:"host podium at 1100, waiting bench for four, coat area, brand name wall, planter grouping, soft downlights, floor mat inset at the door", lens:"wide", hero:"show the brand name wall with the host podium and bench in frame", link:"the same floor inset, ceiling system and brand accent as the dining hall"},
-   {n:"Washroom lobby", m:"shared vanity with two 600 counter basins, lit mirrors, 2100 tile run, two WC doors, hand dryer, framed graphic, floor drain", lens:"wide", hero:"show the vanity run with both mirrors and the WC doors beside", link:"the same tile family, metal finish and lighting as the bar"}]}
+   {n:"Washroom lobby", m:"shared vanity with two 600 counter basins, lit mirrors, 2100 tile run, two WC doors, hand dryer, framed graphic, floor drain", lens:"wide", hero:"show the vanity run with both mirrors and the WC doors beside", link:"the same tile family, metal finish and lighting as the bar"}]},
+ {n:"Commercial gym & fitness club", g:"Commercial", s:"2500 to 4500 sq ft zoned fitness club, high-ceiling industrial aesthetic",
+  rooms:[
+   {n:"Entrance lobby & reception lounge", m:"curved reception desk with a back-lit logo wall, branded turnstiles, juice-bar counter with four stools, retail supplement shelving, planter and locker-preview wall", lens:"wide", hero:"show the reception desk with the logo wall lit behind it and the juice bar in the same frame", link:"the exposed concrete ceiling grid, brand colour and metal finish used through the club"},
+   {n:"Free weights & dumbbell arena", m:"full-height mirror wall with an LED perimeter strip, tiered dumbbell rack from 2.5 to 50 kg, six adjustable benches, two Olympic lifting platforms on 20 mm rubber, chalk tray on a shelf, motivational typography mural", lens:"wide", hero:"shoot along the dumbbell rack so the mirror reflection doubles the depth of the room", link:"the same heavy-duty rubber flooring, exposed-structure ceiling and brand accent as the lobby"},
+   {n:"Cardio & functional turf zone", m:"row of six treadmills and four stairmaster units facing a floor-to-ceiling screen or window, a 15-metre synthetic turf sprint lane with a sled track, kettlebell and battle-rope station, plyometric box stack, heart-rate monitor display panel", lens:"wide", hero:"show the green turf lane with the cardio row beside it and the ceiling truss above", link:"the same rubber border edging, graphic language and lighting temperature as the weights area"},
+   {n:"Recovery lounge & locker corridor", m:"digital-lock matte lockers in two stacked rows, slatted timber bench with built-in charging points, backlit mirror vanity with two hair-dryer outlets, frosted-glass steam room door with a pull handle, cool-toned indirect strip in the ceiling", lens:"wide", hero:"show the locker corridor leading towards the illuminated vanity mirror station", link:"the same hardware finish, ceiling cove light temperature and accent tile as the rest of the club"}]},
+
+ {n:"Luxury villa (full home + outdoor)", g:"Homes", s:"3500 to 5000 sq ft on a private plot with pool and landscaped garden",
+  rooms:[
+   {n:"Front elevation & arrival porch", m:"G+1 contemporary stone-and-glass massing, cantilevered entrance canopy, double-height entrance void, granite-patterned driveway, specimen palm flanking the gate, name plaque with back-lighting", lens:"wide", hero:"show the full facade in three-quarter view with the driveway and palm in the foreground", link:"the stone cladding type, metal finish and warm facade lighting tone carried into every interior"},
+   {n:"Double-height grand living room", m:"5800 mm clear height, bespoke Italian leather sectional for eight, book-matched marble feature wall to the full height, sculptural marble coffee table, statement chandelier drop of 2400 mm, floor-to-ceiling glazing on one side", lens:"wide", hero:"show the full double-height marble wall and the chandelier drop with the seating island below", link:"the marble species, brass reveal lines and ambient light temperature fixed for all rooms"},
+   {n:"Open show kitchen & formal dining", m:"large quartz waterfall island with four bar stools, handleless slab-door tall cabinets, 8-seater dining table with a sculptural base, linear brass-tube pendant centred 700 mm above the table, integrated appliances with a concealed chimney", lens:"wide", hero:"show the island and pendant with the formal dining zone framed in the background depth", link:"the same cabinet finish, brass hardware and ceiling cove as the living room"},
+   {n:"Master bedroom suite", m:"king platform bed on a 150 mm base, floor-to-ceiling fluted acoustic panel headboard wall, walk-in wardrobe entry through a frameless door, chaise lounge by full-height glazing to the terrace, motorised sheer and blackout layers", lens:"wide", hero:"show the headboard wall with the glazed terrace corner reading in the same frame", link:"the same timber species, warm 3000K ambient and brass hardware as the living areas"},
+   {n:"Private poolside deck & landscape", m:"infinity-edge pool with Sukabumi green stone lining and a stone coping edge, anti-skid composite teak deck, two in-pool sun loungers on a submerged ledge, pergola cabana with a deep outdoor sofa, layered tropical planting of palms and frangipani, 2700K underwater and deck-level lighting", lens:"wide", hero:"shoot across the pool surface towards the lit pergola cabana and illuminated villa facade at dusk", link:"the stone palette, metal finish and 2700K warm lighting established on the facade"}]}
 ];
 
 /* ---------------- mode bundles ---------------- */
@@ -384,7 +398,11 @@ const VARY_IN = {
     "a wide shallow plan with the long wall facing the camera",
     "a squarish plan with one chamfered corner",
     "a rectangular plan with a 600 mm deep niche in the far wall",
-    "a slightly trapezoidal plan following the building line"
+    "a slightly trapezoidal plan following the building line",
+    "a U-shaped plan wrapping a central kitchen island or work counter",
+    "a square plan with one corner dramatically cut away to create a diagonal wall",
+    "a rectangular plan with a stepped ceiling drop on one side only",
+    "a wide open loft-like plan with no full-height partition visible"
   ],
   openings:[
     "two windows side by side on the left wall and none on the far wall",
@@ -396,7 +414,10 @@ const VARY_IN = {
     "a French door to a balcony on the far wall plus a small side window",
     "no window on any visible wall — daylight arrives from behind the camera",
     "two small high windows on the far wall and a wide one on the left",
-    "a sliding window on the far-left wall with a deep sill"
+    "a sliding window on the far-left wall with a deep sill",
+    "three narrow slit windows stacked vertically on the right wall",
+    "a large picture window centred exactly on the far wall with a wide sill bench below it",
+    "a skylight cut into the ceiling above the left half of the room — no wall windows visible"
   ],
   door:[
     "the entry door in the near-left corner, behind the camera",
@@ -404,7 +425,9 @@ const VARY_IN = {
     "the doorway in the far-left corner leading to the next room",
     "a wide cased opening instead of a door on the left",
     "the door on the far wall, right of centre",
-    "two doorways — the entry behind the camera and a second on the right wall"
+    "two doorways — the entry behind the camera and a second on the right wall",
+    "a sliding pocket door recessed into the right wall",
+    "an arched doorway on the far wall centred exactly on axis"
   ],
   quirk:[
     "a 300 x 450 mm column standing proud in one corner",
@@ -414,7 +437,10 @@ const VARY_IN = {
     "a stub wall projecting 600 mm from the left wall",
     "a service duct boxed into the far-right corner",
     "a sill-height ledge along the window wall",
-    "no structural obstruction — a clean rectangular volume"
+    "no structural obstruction — a clean rectangular volume",
+    "a curved plaster arch punched into the far wall as a deep niche",
+    "a low dropped soffit zone on the left side only — the right half stays full height",
+    "a 200 mm raised platform occupying the far half of the room"
   ],
   view:[
     "from the near-left corner, looking diagonally across the volume",
@@ -422,54 +448,138 @@ const VARY_IN = {
     "from just inside the entry, slightly left of centre",
     "square down the length of the space in one-point perspective",
     "from the near-right corner with the window wall on the left",
-    "from the middle of the near wall, a few degrees off-axis"
+    "from the middle of the near wall, a few degrees off-axis",
+    "from a low crouching camera height looking slightly upward so the ceiling reads",
+    "from the far corner looking back towards the doorway so the entry light frames the shot"
   ]
 };
-const VARY_OUT = {
+
+/* Residential / commercial outdoor — flat roofs, parapets, balconies */
+const VARY_OUT_RESIDENTIAL = {
   plan:[
     "G+1 with the first-floor slab projecting over the entrance",
     "single storey with a parapet and the stair block visible behind",
     "G+2 with the middle floor recessed",
     "G+1 with a double-height entrance void",
     "single storey with a sloping tiled roof over the porch",
-    "G+1 stepped back on the right",
+    "G+1 stepped back on the right side",
     "G+1 with the stair core expressed as a vertical mass on the left",
-    "single storey with a wide frontage and a flat parapet"
+    "single storey with a wide frontage and a flat parapet",
+    "G+2 with a roof terrace railing visible above the parapet",
+    "G+1 with an integrated car porch taking up the left half of the ground level"
   ],
   openings:[
-    "first-floor windows grouped in a band, one wide opening at ground level",
-    "a tall stair-core slit window pushed off-centre",
-    "two balconies stacked on the left",
+    "first-floor windows grouped in a horizontal band, one wide opening at ground level",
+    "a tall stair-core slit window pushed off-centre to the right",
+    "two balconies stacked on the left with railings at 1050 mm",
     "one cantilevered balcony on the right, small square windows elsewhere",
-    "a full-height glazed entrance bay",
-    "punched windows in an irregular rhythm",
-    "corner windows wrapping the right edge",
-    "a jaali opening over the entrance"
+    "a full-height glazed entrance bay framed in dark metal",
+    "punched windows in a deliberate irregular rhythm",
+    "corner windows wrapping the far-right edge",
+    "a jaali screen opening over the entrance porch",
+    "a continuous horizontal louvre strip on the first floor only"
   ],
   door:[
-    "the gate on the left with the plot sloping up to the plinth",
+    "the main gate on the left with the plot sloping gently up to the plinth",
     "the road running along the right edge of the plot",
     "a corner plot with two boundary faces visible",
-    "a narrow frontage with the neighbour's wall close on the left",
-    "a wide frontage set well back from the gate",
+    "a narrow frontage with a neighbour's boundary wall close on the left",
+    "a wide frontage set well back from the gate with a long driveway",
     "the approach path entering diagonally from the right"
   ],
   quirk:[
-    "an unfinished stair projecting above the parapet",
-    "scaffolding pipes stacked against the left wall",
-    "a rubble mound on the approach",
-    "shuttering ply leaning on the boundary wall",
-    "a temporary electrical pole on the gate line",
-    "no debris at all — a bare levelled plot"
+    "an unfinished stair flight projecting above the parapet",
+    "scaffolding pipes stacked against the left boundary wall",
+    "a rubble mound on the approach from demolition",
+    "shuttering ply leaning on the compound wall",
+    "a temporary electrical pole on the gate line with hanging wires",
+    "no debris — a bare levelled plot with only chalk set-out lines"
   ],
   view:[
-    "three-quarter from the left so the front and left faces both read",
-    "three-quarter from the right so the front and right faces both read",
-    "nearly straight on, offset a few degrees to the right",
-    "from the far corner of the plot",
-    "from the road edge, looking slightly up the approach"
+    "three-quarter from the left so the front and left side faces both read",
+    "three-quarter from the right so the front and right side faces both read",
+    "nearly straight on, offset just a few degrees to the right",
+    "from the far corner of the plot looking across diagonally",
+    "from the road edge, looking slightly uphill towards the plinth"
   ]
 };
+
+/* Sacred and monumental outdoor — temples, heritage plazas, mandirs */
+const VARY_SACRED = {
+  plan:[
+    "a raised stone jagati plinth with a central garbhagriha sanctum topped by a curvilinear shikhara tower and an open pillared mandapa hall in front",
+    "a flat-roofed South Indian temple with a towering gopuram gateway at the entrance axis and a paved prakaram courtyard inside",
+    "a small neighbourhood mandir with a single curvilinear shikhara, a deep porch with carved stone pillars, and a stone-paved parikrama path around the sanctum",
+    "a stepped-tank kund in front of the sanctum with tiered stone ghats descending to the water, the shikhara visible beyond",
+    "a Kerala style temple with a steep copper-clad or Mangalore-tiled sloping roof, carved wooden corbels and a closed nalukettu outer hall"
+  ],
+  openings:[
+    "ornate carved stone arched entrance doorway with deity panels on either jamb and a lintel motif",
+    "a deep columned mandapa with open bays between each pair of carved stone pillars",
+    "jaali stone perforated screens flanking the sanctum opening",
+    "a narrow sandhara passage for pradakshina circumambulation between the inner and outer walls",
+    "a large brass-sheet main door with raised relief panels, flanked by stone guardian figures"
+  ],
+  door:[
+    "a dhwaja stambha flag mast on the central axis in front of the gopuram",
+    "a pair of carved stone dvarapalas flanking the entrance threshold",
+    "a tulsi or peepal platform on the approach axis with devotees path curving around it",
+    "a carved stone nandi or guardian animal on the approach in front of the door"
+  ],
+  quirk:[
+    "marigold garlands strung across the entrance arch, fresh orange against grey stone",
+    "oil-lamp niches cut into the compound wall with brass diyas burning",
+    "scaffolding around one pillar for restoration, the carved stone visible through it",
+    "chalk rangoli kolam patterns on the stone pavement in front of the threshold"
+  ],
+  view:[
+    "from the approach axis straight on so the entire height of the shikhara or gopuram reads against the sky",
+    "three-quarter from the left so the shikhara and the mandapa hall are both in frame",
+    "low camera angle tilting slightly up to emphasise the verticality of the tower",
+    "from inside the mandapa looking back through the open columns towards the entrance with light streaming in"
+  ]
+};
+
+/* Commercial / institutional outdoor — glass offices, showrooms, factories */
+const VARY_COMMERCIAL = {
+  plan:[
+    "a multi-storey curtain-wall glass office facade with a projecting canopy over the entrance",
+    "a double-height showroom frontage with full-height display glazing and minimal mullions",
+    "a single-storey factory or warehouse with a PEB metal-clad shed visible behind the gate",
+    "a school or institution with a wide painted facade, covered drop-off walkway, and flag mast",
+    "a hospital or clinic with a clearly signed entrance porch, accessible ramp, and vehicle drop-off"
+  ],
+  openings:[
+    "a continuous horizontal band of dark-frame glazing on the upper floors",
+    "a full-height glass entrance bay framed by stone or metal cladding on both sides",
+    "punched windows in a regular grid with sun-break fins projecting outward",
+    "a louvred ventilation strip running the full width at mid-facade height",
+    "clerestory glazing at the roof line with solid wall below"
+  ],
+  door:[
+    "the main gate or entry with a security cabin and a boom barrier",
+    "a forecourt with marked visitor parking and a pedestrian walkway to the door",
+    "branded signage and the company logo above the entrance canopy",
+    "bollards and planters defining the drop-off zone in front"
+  ],
+  quirk:[
+    "a construction hoarding partially concealing the facade behind scaffolding",
+    "drainage channels cut but not yet filled across the forecourt",
+    "temporary site lighting poles still in place",
+    "chalk line markings on the forecourt paving showing future parking bays"
+  ],
+  view:[
+    "straight on so the full facade width reads — offset a few degrees left",
+    "three-quarter from the left with the approach forecourt in the foreground",
+    "from the road edge looking upward at the canopy and signage",
+    "from across the forecourt so the full building height and plot boundary read"
+  ]
+};
+
+/* Legacy alias kept for backward compatibility with existing code */
+const VARY_OUT = VARY_OUT_RESIDENTIAL;
+
+
 
 /* =====================================================================
    DESIGN DNA POOLS
@@ -619,3 +729,4 @@ const VARY_TOUR = {
     ]
   }
 };
+
