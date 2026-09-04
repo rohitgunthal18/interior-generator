@@ -163,7 +163,10 @@ function wrap(lead, dataObj){
     : toText(data, "");
   return lead + "\n\n" + body + modelSuffix();
 }
-function negJoin(list){ return list.filter(Boolean).join(", "); }
+function negJoin(list){
+  const items = list.filter(Boolean).flatMap(x => typeof x === "string" ? x.split(",").map(s => s.trim()) : [x]);
+  return Array.from(new Set(items.filter(Boolean))).join(", ");
+}
 function negOf(dataObj){
   const n = dataObj && dataObj.negative_prompt;
   if(typeof n === "string") return n;
@@ -611,99 +614,77 @@ function tourNeg(extra){
 function DT1(){
   const t = TSP(), rooms = ROOMS(), r0 = rooms[0];
   return {
-    task:"text_to_image",
-    generation_mode:"text_to_image_from_scratch",
-    reference_image_required:false,
-    input_image:"none — generate this property interior purely from text description, no existing or before image exists or is required",
-    critical_instruction:"Create this property from text only. Do NOT ask for an existing image, reference photo, or upload. Invent the complete original design right now from the specifications below.",
-    post_id:S.pid,
-    image:"1 of " + rooms.length + " — " + r0.n,
-    goal:"One finished, photographed " + r0.n.toLowerCase() + " in this " + t.n
-      + ". This image fixes the design language for the whole property, so every decision here has to be worth repeating in every other room.",
-    output:outputBlock("finished interior photograph, architectural magazine quality, not a render"),
-    property:{
-      type:t.n, brief:t.s, region:"India",
-      city:(S.opts.market && S.vals.market) ? String(S.vals.market).trim() : undefined,
-      area:v("scale","use the realistic carpet area for this package"),
-      images_in_this_set:rooms.map(x => x.n).join(" | ")
+    subject: r0.n + " inside a " + t.n,
+    room_elements: r0.m + ((S.opts.must && S.vals.must) ? ", including: " + String(S.vals.must).trim() : ""),
+    design_style:{
+      theme: themeName(),
+      material_palette: themeLang(),
+      accent_colour: accentVal(),
+      architectural_character: dnaLine()
     },
-    room:{name:r0.n, must_have:r0.m,
-      also_include:(S.opts.must && S.vals.must) ? String(S.vals.must).trim() : undefined},
-    design_dna:{
-      instruction:"You are inventing the design language for this property right now. Fix it here — every later image in this set reuses it without being told again.",
-      variation:dnaLine(),
-      variation_seed:S.pid + "-" + (S.seed || 0),
-      theme:themeName(),
-      theme_material_language:themeLang(),
-      accent_colour:accentVal(),
-      colour_rule:"60 percent dominant neutral, 30 secondary, 10 accent — the accent reappears in every room of this set",
-      budget_tier:budgetVal(),
-      lock:"Settle on ONE flooring, ONE wall finish, ONE ceiling strategy, ONE joinery language, ONE hardware finish and ONE light temperature. They now apply to the whole property."
+    camera_and_view:{
+      lens: r0.lens === "wide" ? "20-24mm wide angle, full-frame DSLR" : "35mm natural perspective, full-frame DSLR",
+      viewpoint: camOf(0).station,
+      height: camOf(0).height,
+      framing: "two walls meeting at a corner showing room depth, level camera, dead-straight verticals"
     },
-    photography:camOf(0),
-    ergonomics_mm:ergonomics(),
-    realism:tourReal(),
-    negative_prompt:tourNeg("no second design scheme inside one image"),
-    after_generation_output:{
-      block_title:"HOME_DNA",
-      instruction:"After the image, print this block as plain text. Every later prompt in this set depends on it, so name real specific things — no vague adjectives.",
-      fields:["theme and a one-line design intent",
-        "palette: 4 to 5 colours with hex codes and rough percentages",
-        "floor: material, format in mm, laying pattern",
-        "walls: finish and colour, plus any panelling detail and its module in mm",
-        "ceiling: strategy, drop in mm, cove or profile detail",
-        "joinery: shutter type, veneer or laminate, handle or shadow-gap detail, hardware finish",
-        "curtains and upholstery: fabric families",
-        "lighting: fixture families and colour temperature in K",
-        "styling language and the accent colour with its hex"]
-    }
+    lighting:{
+      daylight: tourLight(),
+      ambient: "warm 3000K indirect glow, natural light falloff, soft penumbra contact shadows"
+    },
+    photographic_realism:[
+      "magazine architectural documentary photography, not a 3D render, not CGI",
+      "physically authentic materials: visible wood grain, honed stone, fabric weave, real glass refraction",
+      "grounding contact shadows under all furniture and joinery bases so nothing floats",
+      "neutral-to-warm color balance (3200-4200K), straight verticals, no Unreal Engine clay smoothness"
+    ],
+    negative_prompt: tourNeg("no second design scheme, no floating furniture, no people, no text")
   };
 }
+
 function PT1(){
-  return wrap("Generate ONE image from this JSON specification entirely FROM SCRATCH. "
-    + "NO EXISTING OR BEFORE IMAGE IS REQUIRED — this is a brand-new property created purely from text. "
-    + "Do not ask for an image, reference photo, or file upload. Invent the complete design directly from the specification below and render the image immediately. "
-    + "After the image, print the HOME_DNA block exactly as asked. Do not describe the JSON back to me.", DT1());
+  return wrap("Generate ONE photorealistic interior photograph from this room specification. "
+    + "Focus on authentic architectural realism, natural lighting, and photographic texture. "
+    + "Do not restate or summarize the specification, generate the image immediately.", DT1());
 }
 
 /* ------- prompts 2..n: which room comes next, continuing the locked design ------- */
 function DTn(i){
   const rooms = ROOMS(), rm = rooms[i], t = TSP();
   return {
-    task:"text_to_image",
-    generation_mode:"text_to_image_continuity",
-    reference_image_required:false,
-    input_image:"none — render purely from text, continuing the design language established in image 1",
-    post_id:S.pid,
-    image:(i + 1) + " of " + rooms.length + " — " + rm.n,
-    goal:"The " + rm.n.toLowerCase() + " of the SAME property from image 1. Somebody scrolling this set must never doubt it is one continuous place.",
-    output:outputBlock("finished interior photograph, architectural magazine quality, not a render"),
-    property:{type:t.n, region:"India", room_index:(i + 1) + " of " + rooms.length},
-    room:{name:rm.n, must_have:rm.m},
+    subject: rm.n + " inside the SAME " + t.n + " (Image " + (i + 1) + " of " + rooms.length + ")",
+    room_elements: rm.m,
     design_continuity:{
-      rule:"Continue the EXACT design language established in image 1 for this property. If running in the same conversation, match image 1 and its HOME_DNA block. If running standalone, apply the locked design specifications below.",
-      locked_design_specs:{
-        theme:themeName(),
-        theme_material_language:themeLang(),
-        accent_colour:accentVal(),
-        budget_tier:budgetVal()
-      },
-      carry_over_unchanged:"floor material, format and laying pattern; wall finish and colour; panelling module; ceiling strategy and drop; joinery shutter finish and edge detail; handle and hardware metal finish; accent colour and where it lands; curtain and upholstery fabric family; light fixture family and colour temperature; styling density; era of the detailing",
-      continuity_anchor:rm.link,
-      room_specific_elements:rm.m,
-      variation_seed:S.pid + "-" + (S.seed || 0)
+      theme: themeName(),
+      material_palette: themeLang(),
+      accent_colour: accentVal(),
+      continuity_rule: "Continue the EXACT design language, flooring, wall finish, joinery style, hardware, and warm lighting established in Image 1 (" + rm.link + ")"
     },
-    photography:camOf(i),
-    ergonomics_mm:ergonomics(),
-    realism:tourRealShort(),
-    self_check:"Before rendering, check four things against image 1: the floor, the wall colour, the shutter and hardware finish, the light temperature. Any mismatch is a failed image.",
-    negative_prompt:tourNeg("no new colour scheme, no flooring or finish change from the earlier images, no style change mid-set, no mismatched light temperature")
+    camera_and_view:{
+      lens: rm.lens === "wide" ? "20-24mm wide angle, full-frame DSLR" : "35mm natural perspective, full-frame DSLR",
+      viewpoint: camOf(i).station,
+      height: camOf(i).height,
+      framing: "two walls meeting at a corner showing room depth, level camera, dead-straight verticals"
+    },
+    lighting:{
+      daylight: tourLight(),
+      ambient: "warm 3000K indirect glow matching Image 1, soft penumbra contact shadows"
+    },
+    photographic_realism:[
+      "magazine architectural documentary photography matching Image 1, not a 3D render",
+      "physically authentic materials: visible wood grain, honed stone, fabric weave",
+      "grounding contact shadows under all furniture so nothing floats",
+      "neutral-to-warm color balance (3200-4200K), straight verticals, no CGI sheen"
+    ],
+    negative_prompt: tourNeg("no new color scheme, no style drift, no floating furniture, no people, no text")
   };
 }
+
 function PTn(i){
   const rooms = ROOMS();
-  return wrap("Generate ONE image from this JSON specification. This is image " + (i + 1) + " of " + rooms.length
-    + " of the SAME property. NO IMAGE UPLOAD IS NEEDED — render this room purely from text, continuing the exact design scheme from image 1. Restyle nothing, and do not describe the JSON back to me.", DTn(i));
+  return wrap("Generate ONE photorealistic interior photograph for Image " + (i + 1) + " of " + rooms.length + " in this property tour. "
+    + "Continue the identical design scheme, materials, and lighting established in the previous rooms. "
+    + "Do not restate or summarize the specification, generate the image immediately.", DTn(i));
 }
 
 /* ---------------- thumbnail: every room in one collage tile ---------------- */
