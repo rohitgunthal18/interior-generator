@@ -134,9 +134,9 @@ function spaceHintText(sp){
 function runNote(){
   const n = cards().length;
   if(!TOUR()) return "Run the prompts in order 1 to " + n + ". Steps 2 and 3 need the previous image attached.";
-  return "Run all " + n + " prompts in ONE chat, in order. Prompt 1 designs the property and prints the HOME_DNA block; "
-    + "prompts 2 to " + (n - 2) + " reuse it without describing the design again; prompt " + (n - 1)
-    + " builds the collage from every image; prompt " + n + " writes the copy.";
+  return "Full Tour: Run all " + n + " prompts in ONE chat in order. NO BEFORE OR EXISTING IMAGE NEEDED! "
+    + "Prompt 1 creates the property from text; prompts 2 to " + (n - 2) + " generate each room in the matching design; prompt " + (n - 1)
+    + " builds the collage from all images; prompt " + n + " writes the copy.";
 }
 /* rows that make no sense in a mode are pulled out of the form entirely */
 function optRow(key, show){
@@ -265,7 +265,9 @@ function syncUI(){
   radios("budgetR","budget",BUDGET);
   radios("ctaR","cta",CTA.map(x=>({n:x})));
   markAccent();
-  $("modelNote").textContent=MODELS[S.model].note;
+  $("modelNote").textContent=TOUR()
+    ? "Full Tour mode: 100% text-to-image from scratch. No existing image or before photo needed! Prompt 1 creates the property, and subsequent prompts generate each room in the matching design."
+    : MODELS[S.model].note;
   $("pid").textContent=S.pid;
   $("ratioNote").textContent=RATIOS[S.ratio].px+" · "+RATIOS[S.ratio].ar;
 }
@@ -275,7 +277,9 @@ function refresh(){
   renderPrompts();
   const sp=DATA[S.mode].spaces.find(x=>x.n===S.space);
   if(sp) $("spaceHint").textContent=spaceHintText(sp);
-  $("modelNote").textContent=MODELS[S.model].note;
+  $("modelNote").textContent=TOUR()
+    ? "Full Tour mode: 100% text-to-image from scratch. No existing image or before photo needed! Prompt 1 creates the property, and subsequent prompts generate each room in the matching design."
+    : MODELS[S.model].note;
   $("ratioNote").textContent=RATIOS[S.ratio].px+" · "+RATIOS[S.ratio].ar;
   save();
 }

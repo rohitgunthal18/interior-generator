@@ -612,6 +612,10 @@ function DT1(){
   const t = TSP(), rooms = ROOMS(), r0 = rooms[0];
   return {
     task:"text_to_image",
+    generation_mode:"text_to_image_from_scratch",
+    reference_image_required:false,
+    input_image:"none — generate this property interior purely from text description, no existing or before image exists or is required",
+    critical_instruction:"Create this property from text only. Do NOT ask for an existing image, reference photo, or upload. Invent the complete original design right now from the specifications below.",
     post_id:S.pid,
     image:"1 of " + rooms.length + " — " + r0.n,
     goal:"One finished, photographed " + r0.n.toLowerCase() + " in this " + t.n
@@ -656,28 +660,38 @@ function DT1(){
   };
 }
 function PT1(){
-  return wrap("Generate ONE image from this JSON specification. This is image 1 of a set that must all look like the same property, "
-    + "so design_dna is binding. After the image, print the HOME_DNA block exactly as asked. Do not describe the JSON back to me.", DT1());
+  return wrap("Generate ONE image from this JSON specification entirely FROM SCRATCH. "
+    + "NO EXISTING OR BEFORE IMAGE IS REQUIRED — this is a brand-new property created purely from text. "
+    + "Do not ask for an image, reference photo, or file upload. Invent the complete design directly from the specification below and render the image immediately. "
+    + "After the image, print the HOME_DNA block exactly as asked. Do not describe the JSON back to me.", DT1());
 }
 
-/* ------- prompts 2..n: which room comes next, and nothing about design ------- */
+/* ------- prompts 2..n: which room comes next, continuing the locked design ------- */
 function DTn(i){
   const rooms = ROOMS(), rm = rooms[i], t = TSP();
   return {
     task:"text_to_image",
+    generation_mode:"text_to_image_continuity",
+    reference_image_required:false,
+    input_image:"none — render purely from text, continuing the design language established in image 1",
     post_id:S.pid,
     image:(i + 1) + " of " + rooms.length + " — " + rm.n,
-    goal:"The " + rm.n.toLowerCase() + " of the SAME property from image 1. Somebody scrolling this set must never doubt it is one place.",
+    goal:"The " + rm.n.toLowerCase() + " of the SAME property from image 1. Somebody scrolling this set must never doubt it is one continuous place.",
     output:outputBlock("finished interior photograph, architectural magazine quality, not a render"),
     property:{type:t.n, region:"India", room_index:(i + 1) + " of " + rooms.length},
     room:{name:rm.n, must_have:rm.m},
-    design_source:{
-      rule:"The design is deliberately NOT described in this prompt. Read the HOME_DNA block you printed with image 1 of this set and apply it here item for item.",
+    design_continuity:{
+      rule:"Continue the EXACT design language established in image 1 for this property. If running in the same conversation, match image 1 and its HOME_DNA block. If running standalone, apply the locked design specifications below.",
+      locked_design_specs:{
+        theme:themeName(),
+        theme_material_language:themeLang(),
+        accent_colour:accentVal(),
+        budget_tier:budgetVal()
+      },
       carry_over_unchanged:"floor material, format and laying pattern; wall finish and colour; panelling module; ceiling strategy and drop; joinery shutter finish and edge detail; handle and hardware metal finish; accent colour and where it lands; curtain and upholstery fabric family; light fixture family and colour temperature; styling density; era of the detailing",
       continuity_anchor:rm.link,
-      free_to_change:"only what this room genuinely needs — the pieces listed in room.must_have, how they are laid out, and the appliance or sanitary set. Scale the locked finishes into this room, do not restyle them.",
-      variation_seed:S.pid + "-" + (S.seed || 0),
-      if_dna_missing:"If the HOME_DNA block is not visible in this conversation, ask me to paste it before generating. Never invent a second scheme."
+      room_specific_elements:rm.m,
+      variation_seed:S.pid + "-" + (S.seed || 0)
     },
     photography:camOf(i),
     ergonomics_mm:ergonomics(),
@@ -689,7 +703,7 @@ function DTn(i){
 function PTn(i){
   const rooms = ROOMS();
   return wrap("Generate ONE image from this JSON specification. This is image " + (i + 1) + " of " + rooms.length
-    + " of the SAME property, in the same conversation as image 1. The design is already fixed by your HOME_DNA block — reuse it exactly, restyle nothing, and do not describe the JSON back to me.", DTn(i));
+    + " of the SAME property. NO IMAGE UPLOAD IS NEEDED — render this room purely from text, continuing the exact design scheme from image 1. Restyle nothing, and do not describe the JSON back to me.", DTn(i));
 }
 
 /* ---------------- thumbnail: every room in one collage tile ---------------- */
@@ -825,20 +839,20 @@ function PTP(){
 function tourCards(){
   const rooms = ROOMS(), n = rooms.length;
   const list = [{n:1, t:rooms[0].n + " — locks the design", tag:() => "Image 1 of " + n, f:PT1, neg:DT1,
-    d:"Paste this into a brand-new chat. One property = one fresh chat. It designs the place and prints the HOME_DNA block that every prompt after it reads.",
-    tip:["g","The whole design language is seeded from the post id, so the same package comes back as a completely different property every time. Hit New id in the toolbar to reroll it before you generate."]}];
+    d:"Pure text-to-image from scratch — NO existing or before image needed! Paste this into a chat; the AI invents the property and locks the design language.",
+    tip:["g","Full Tour starts completely from text without any before image. The whole design language is seeded from the post id — click 'New id' in the toolbar to reroll."]}];
   for(let i = 1; i < n; i++){
     const k = i;
     list.push({n:k + 1, t:rooms[k].n, tag:() => "Image " + (k + 1) + " of " + n,
       f:() => PTn(k), neg:() => DTn(k),
-      d:"Same chat, straight after image " + k + ". This prompt says nothing about the design — the model reuses its own HOME_DNA.",
+      d:"Same chat, straight after image " + k + ". No image upload needed — the model continues the exact design from image 1.",
       tip:k === 1
         ? ["","If the finishes drift, reply: “That is a different scheme. Re-read your HOME_DNA block and rebuild this room with the same floor, walls, joinery, hardware and light temperature.”"]
         : (k === n - 1 ? ["","Last room. Keep the chat open — the collage prompt needs every image still in it."] : ["",""])});
   }
   list.push({n:n + 1, t:"Thumbnail Collage", tag:() => "Cover tile", f:PTC, neg:DTC,
-    d:"Run this in the same chat after the last room so it can use all " + n + " images. No text on it except your handle.",
-    tip:["g","From post two onwards, also attach your first approved collage and add: “Match this template exactly. Only the photographs change.”"]});
+    d:"Run this in the same chat after the last room so the AI can place all " + n + " images into the collage tile. No text except your handle.",
+    tip:["g","The AI places the images already generated in this chat into the grid. No manual upload needed."]});
   list.push({n:n + 2, t:"Caption, Description and Hashtags", tag:() => "Post copy", f:PTP, neg:null,
     d:"Text only. Same chat, so it can read the real design and every room in it.",
     tip:["","Post the caption first, then drop the first comment within a minute — it lifts early engagement."]});
